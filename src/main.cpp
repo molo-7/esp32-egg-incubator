@@ -265,7 +265,7 @@ void loop()
 
           currentDay = 1;
           incubationStartTimestamp = getUnixTimestamp();
-          lastTurnTimestamp = 0;
+          lastTurnTimestamp = incubationStartTimestamp;
           configDoc["turning"]["last_turn_time"] = lastTurnTimestamp;
           configDoc["incubation_start_date"] = incubationStartTimestamp;
           writeConfig(configDoc);
