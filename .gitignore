@@ -1,0 +1,19 @@
+# PlatformIO
+.pio/
+.vscode/
+.clangd/
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Arduino-style backup files
+*.bak
+
+# Build output
+*.elf
+*.bin
+*.hex
+
+# MD
+TEST_PLAN.md

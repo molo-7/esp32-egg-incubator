@@ -1,0 +1,23 @@
+{
+  "incubation_start_date": 0,
+  "temperature": {
+    "early_days_hysteresis": 0.3,
+    "early_days_target": 37.5,
+    "hatching_days_target": 37.5,
+    "hatching_days_hysteresis": 0.3
+  },
+  "humidity": {
+    "early_days_target": 52.5,
+    "early_days_hysteresis": 2.5,
+    "hatching_days_target": 67.5,
+    "hatching_days_hysteresis": 2.5
+  },
+  "turning": {
+    "last_turn_time": 0,
+    "turns_per_day": 3
+  },
+  "failover": {
+    "temp_loss_per_second": 0.02,
+    "temp_gain_per_second": 0.01
+  }
+}
