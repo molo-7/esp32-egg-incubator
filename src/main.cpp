@@ -292,6 +292,7 @@ void loop()
           configDoc["turning"]["last_turn_time"] = lastTurnTimestamp;
           writeConfig(configDoc);
         }
+        digitalWrite(BUZZER_BJT_PIN, LOW);
         updateLCD();
       }
     }
