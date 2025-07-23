@@ -27,7 +27,7 @@ unsigned long dhtLastRead = 0;        // in ms
 float temp = NAN;
 float humidity = NAN;
 const uint16_t DHT_MAX_TIMEOUT = 2 * 60 * 1000; // in ms
-unsigned long lastDhtOkRead = 0;
+unsigned long lastDhtOkRead = 0; // in ms
 bool isSensorOk = false; // flag to indicate if the sensor is OK, used only for LCD display purposes
 
 LiquidCrystal_I2C lcd(0x27, 16, 2); // https://learn.adafruit.com/scanning-i2c-addresses/arduino
@@ -79,6 +79,8 @@ float humidityHyst;
 
 float tempLossPerSecond;
 float tempGainPerSecond;
+unsigned long heaterLastSwitch = 0; // in ms
+float estimatedTemp;
 
 // debounce
 const unsigned long DEBOUNCE_DELAY = 50; // 50ms is common
@@ -365,6 +367,7 @@ void loop()
   if (millis() - lastDhtOkRead < DHT_MAX_TIMEOUT)
   {
     isSensorOk = true;
+    estimatedTemp = temp;
     // Temperature control logic
     if (heaterState)
     {
@@ -407,13 +410,13 @@ void loop()
   else
   {
     // failsafe mode
-    float currentTemp;
     if (heaterState)
     {
-      currentTemp = temp + (tempGainPerSecond * (millis() - lastDhtOkRead) / 1000);
-      if (currentTemp >= tempTarget + tempHyst)
+      estimatedTemp = estimatedTemp + (tempGainPerSecond * (millis() - heaterLastSwitch) / 1000.0);
+      if (estimatedTemp >= tempTarget + tempHyst)
       {
         heaterState = false;
+        heaterLastSwitch = millis();
         digitalWrite(TEMP_RELAY_PIN, LOW);
       }
       else
@@ -424,10 +427,11 @@ void loop()
     }
     else
     {
-      currentTemp = temp - (tempLossPerSecond * (millis() - lastDhtOkRead) / 1000);
-      if (currentTemp < tempTarget - tempHyst)
+      estimatedTemp = estimatedTemp - (tempLossPerSecond * (millis() - heaterLastSwitch) / 1000.0);
+      if (estimatedTemp < tempTarget - tempHyst)
       {
         heaterState = true;
+        heaterLastSwitch = millis();
         digitalWrite(TEMP_RELAY_PIN, HIGH);
       }
       else
