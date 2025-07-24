@@ -412,23 +412,26 @@ void loop()
   else
   {
     // failsafe mode
+    float currentEstimatedTemp;
     if (heaterState)
     {
-      estimatedTemp = estimatedTemp + (tempGainPerSecond * (millis() - heaterLastSwitch) / 1000.0);
-      if (estimatedTemp >= tempTarget + tempHyst)
+      currentEstimatedTemp = estimatedTemp + (tempGainPerSecond * (millis() - heaterLastSwitch) / 1000.0);
+      if (currentEstimatedTemp >= tempTarget + tempHyst)
       {
         heaterState = false;
         heaterLastSwitch = millis();
+        estimatedTemp = currentEstimatedTemp;
         digitalWrite(TEMP_RELAY_PIN, LOW);
       }
     }
     else
     {
-      estimatedTemp = estimatedTemp - (tempLossPerSecond * (millis() - heaterLastSwitch) / 1000.0);
-      if (estimatedTemp < tempTarget - tempHyst)
+      currentEstimatedTemp = estimatedTemp - (tempLossPerSecond * (millis() - heaterLastSwitch) / 1000.0);
+      if (currentEstimatedTemp < tempTarget - tempHyst)
       {
         heaterState = true;
         heaterLastSwitch = millis();
+        estimatedTemp = currentEstimatedTemp;
         digitalWrite(TEMP_RELAY_PIN, HIGH);
       }
     }
