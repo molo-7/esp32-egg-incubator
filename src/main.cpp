@@ -26,7 +26,7 @@ const uint16_t DHT_DELAY = 10 * 1000; // in ms
 unsigned long dhtLastRead = 0;        // in ms
 float temp = NAN;
 float humidity = NAN;
-const uint16_t DHT_MAX_TIMEOUT = 2 * 60 * 1000; // in ms
+const uint16_t DHT_MAX_TIMEOUT = 60 * 1000; // in ms
 unsigned long lastDhtOkRead = 0; // in ms
 bool isSensorOk = false; // flag to indicate if the sensor is OK, used only for LCD display purposes
 
@@ -368,13 +368,13 @@ void loop()
   if (millis() - lastDhtOkRead < DHT_MAX_TIMEOUT)
   {
     isSensorOk = true;
-    estimatedTemp = temp;
     // Temperature control logic
     if (heaterState)
     {
       if (temp >= tempTarget + tempHyst)
       {
         heaterState = false;
+        heaterLastSwitch = millis();
         digitalWrite(TEMP_RELAY_PIN, LOW);
       }
     }
@@ -383,6 +383,7 @@ void loop()
       if (temp < tempTarget - tempHyst)
       {
         heaterState = true;
+        heaterLastSwitch = millis();
         digitalWrite(TEMP_RELAY_PIN, HIGH);
       }
     }
@@ -420,11 +421,6 @@ void loop()
         heaterLastSwitch = millis();
         digitalWrite(TEMP_RELAY_PIN, LOW);
       }
-      else
-      {
-        heaterState = true;
-        digitalWrite(TEMP_RELAY_PIN, HIGH);
-      }
     }
     else
     {
@@ -434,11 +430,6 @@ void loop()
         heaterState = true;
         heaterLastSwitch = millis();
         digitalWrite(TEMP_RELAY_PIN, HIGH);
-      }
-      else
-      {
-        heaterState = false;
-        digitalWrite(TEMP_RELAY_PIN, LOW);
       }
     }
     Serial.println("⚠️ Sensor timeout! System in failsafe mode.");
@@ -473,6 +464,7 @@ bool readSensor()
   {
     readChange = fabs(temp - data.temperature) > 0.1 || fabs(humidity - data.humidity) > 0.1;
     temp = data.temperature;
+    estimatedTemp = temp;
     humidity = data.humidity;
     lastDhtOkRead = millis();
   }
